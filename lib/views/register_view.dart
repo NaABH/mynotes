@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -29,7 +30,9 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register'),),
+      appBar: AppBar(
+        title: const Text('Register'),
+      ),
       body: Column(
         children: [
           TextField(
@@ -37,7 +40,8 @@ class _RegisterViewState extends State<RegisterView> {
             enableSuggestions: false,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: 'Enter your email here'),
+            decoration:
+                const InputDecoration(hintText: 'Enter your email here'),
           ),
           TextField(
             controller: _password,
@@ -55,22 +59,24 @@ class _RegisterViewState extends State<RegisterView> {
                   final userCredential = await FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
                           email: email, password: password);
-                  print(userCredential);
+                  devtools.log(userCredential.toString());
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'weak-password') {
-                    print('Weak Password');
+                    devtools.log('Weak Password');
                   } else if (e.code == 'email-already-in-use') {
-                    print('Duplicate email. This email already in use');
+                    devtools.log('Duplicate email. This email already in use');
                   } else if (e.code == 'invalid-email') {
-                    print('Invalid email entered');
+                    devtools.log('Invalid email entered');
                   }
                 }
               },
               child: const Text('Register')),
-              TextButton(onPressed: () {
+          TextButton(
+              onPressed: () {
                 Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/login/', (route) => false);
-              }, child: const Text('Already registered? Login here!'))
+                    .pushNamedAndRemoveUntil('/login/', (route) => false);
+              },
+              child: const Text('Already registered? Login here!'))
         ],
       ),
     );
