@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/note_service.dart';
+import 'package:mynotes/utilities/generics/get_arguments.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateUpdateNoteView extends StatefulWidget {
+  const CreateUpdateNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateUpdateNoteView> createState() => _CreateUpdateNoteViewState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
-
+class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   DatabaseNote? _note;
   late final NotesServices _notesServices;
   // track text changes
@@ -37,7 +37,15 @@ class _NewNoteViewState extends State<NewNoteView> {
     _textController.addListener(_textControllerListener);
   }
 
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+    final widgetNote = context.getArgument<DatabaseNote>();
+    if (widgetNote != null) {
+      // click on existing note
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
+
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -45,13 +53,15 @@ class _NewNoteViewState extends State<NewNoteView> {
     final currentUser = AuthService.firebase().currentUser;
     final email = currentUser!.email!;
     final owner = await _notesServices.getUser(email: email);
-    return await _notesServices.createNote(owner: owner);
+    final newNote = await _notesServices.createNote(owner: owner);
+    _note = newNote;
+    return newNote;
   }
 
   // delete note if no text is entered
   void _deleteNoteIfTextIsEmpty() {
     final note = _note;
-    if (_textController.text.isEmpty && note !=  null) {
+    if (_textController.text.isEmpty && note != null) {
       _notesServices.deleteNote(id: note.id);
     }
   }
@@ -78,23 +88,24 @@ class _NewNoteViewState extends State<NewNoteView> {
       appBar: AppBar(
         title: const Text('New Note'),
       ),
-      body: FutureBuilder(future: createNewNote(),builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            _note = snapshot.data as DatabaseNote; // get note from snapshot
-            _setupTextControllerListener(); // listen to user text changes
-            return TextField(
-              controller: _textController,
-              keyboardType: TextInputType.multiline, // multiline text field
-              maxLines: null, // auto adjust text field line
-              decoration: const InputDecoration(
-                hintText: 'Start typing your note...'
-              ),
-            );
-          default:
-            return const CircularProgressIndicator();
-        }
-      },),
+      body: FutureBuilder(
+        future: createOrGetExistingNote(context),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              _setupTextControllerListener(); // listen to user text changes
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline, // multiline text field
+                maxLines: null, // auto adjust text field line
+                decoration: const InputDecoration(
+                    hintText: 'Start typing your note...'),
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }
