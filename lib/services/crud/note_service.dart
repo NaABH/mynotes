@@ -1,5 +1,5 @@
+/**
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:mynotes/extensions/list/filter.dart';
 import 'package:sqflite/sqflite.dart';
@@ -344,3 +344,4 @@ const createNoteTable = '''CREATE TABLE "note" (
   PRIMARY KEY("id" AUTOINCREMENT)
   );
 ''';
+**/
