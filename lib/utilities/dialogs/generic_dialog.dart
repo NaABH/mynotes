@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 typedef DialogOptionBuilder<T> = Map<String, T?> Function();
 
 Future<T?> showGenericDialog<T>({
-  required BuildContext context,
+  required BuildContext context, // represent the location of a widget in the widget tree
   required String title,
   required String content,
-  required DialogOptionBuilder optionsBuilder,
+  required DialogOptionBuilder optionsBuilder, // a function to build the options that will be displayed in the dialog
 }) {
   final options = optionsBuilder();
   return showDialog<T>(
@@ -20,9 +20,9 @@ Future<T?> showGenericDialog<T>({
             return TextButton(
                 onPressed: () {
                   if (value != null) {
-                    Navigator.of(context).pop(value);
+                    Navigator.of(context).pop(value); // close the dialog and return the value
                   } else {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // close the dialog
                   }
                 },
                 child: Text(optionTitle)

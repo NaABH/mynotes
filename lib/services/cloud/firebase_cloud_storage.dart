@@ -38,11 +38,13 @@ class FirebaseCloudStorage {
       return await notes
           .where(
             ownerUserIdFieldName,
-            isEqualTo: ownerUserId,
+            isEqualTo:
+                ownerUserId, //ornerUserIdFieldName equal to the ownserUserId
           )
           .get()
           .then(
-            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(
+                doc)), // convert each document into a CloudNote objject
           );
     } catch (e) {
       throw CouldNotGetAllNotesException();
@@ -54,7 +56,8 @@ class FirebaseCloudStorage {
       ownerUserIdFieldName: ownerUserId,
       textFieldName: '',
     });
-    final fetchedNote = await document.get();
+    final fetchedNote =
+        await document.get(); // immediately fetch back from the firestore
     return CloudNote(
       documentId: fetchedNote.id,
       ownerUserId: ownerUserId,
@@ -62,6 +65,7 @@ class FirebaseCloudStorage {
     );
   }
 
+  // implement FirebaseCloudStorage as a singleton
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();
 
